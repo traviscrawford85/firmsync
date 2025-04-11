@@ -1,2 +1,4 @@
 venv/
 .env
+firm_auth/token_store.json
+__pycache__/

@@ -1,14 +1,13 @@
-# firm_qbo/qbo_client.py
-
 import os
-from dotenv import load_dotenv
+from firm_auth.oauth_flow import load_authenticated_client
 from quickbooks import QuickBooks
 
-load_dotenv()
+def get_qbo_client():
+    auth_client = load_authenticated_client()
 
-qb_client = QuickBooks(
-    sandbox=True,
-    access_token=os.getenv("ACCESS_TOKEN"),
-    refresh_token=os.getenv("REFRESH_TOKEN"),
-    company_id=os.getenv("REALM_ID")
-)
+    return QuickBooks(
+        sandbox=True,
+        auth_client=auth_client,
+        refresh_token=auth_client.refresh_token,
+        company_id=os.getenv("QB_REALM_ID")
+    )
