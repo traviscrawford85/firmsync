@@ -67,3 +67,34 @@ def print_contacts(contacts: List[Contact]):
         print("-" * 40)
         if not contacts:
             print("📭 No contacts found.")
+
+
+# # Function to extract Clio Matter ID from QBO Purchase object
+def extract_clio_matter_id_from_qbo(purchase_data: dict) -> str:
+    """
+    Attempts to extract Clio Matter ID from a QBO Purchase object.
+    Tries custom field first, then falls back to memo parsing.
+    """
+    # Look for custom field with Name="ClioMatterId"
+    custom_fields = purchase_data.get("PurchaseEx", {}).get("any", [])
+    for field in custom_fields:
+        value = field.get("value", {})
+        if value.get("Name") == "ClioMatterId":
+            return value.get("Value")
+
+    # Fallback: Try parsing from memo (PrivateNote)
+    memo = purchase_data.get("PrivateNote", "")
+    if "Mitchell" in memo and ":" in memo:
+        parts = memo.split(":")
+        if len(parts) > 1:
+            return parts[0].strip()
+
+    return None
+
+# Function to convert a currency code to a Clio-compatible dictionary
+def to_clio_currency_dict(currency_code: str = "USD"):
+    return {
+        "code": currency_code,
+        "name": "United States Dollar",
+        "symbol": "$"
+    }
