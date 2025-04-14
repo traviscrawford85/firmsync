@@ -2,3 +2,5 @@ venv/
 .env
 firm_auth/token_store.json
 __pycache__/
+tests/
+clio-qbo-sync.json
