@@ -1,44 +1,46 @@
-import time
+# firm_clio/clio_client.py
+
 import os
-import json
+import time
 import requests
+from clio_sdk import Configuration, ApiClient
 from dotenv import load_dotenv
-from clio_sdk import ApiClient, Configuration
+from clio_sdk import Configuration, ApiClient
+from utils.helpers import load_tokens, save_tokens  # 👈 Centralized import
 
 load_dotenv()
 
-def get_clio_client():
-    with open("firm_clio/clio_token_store.json", "r") as f:
-        tokens = json.load(f)
+TOKEN_PATH = os.getenv("CLIO_TOKEN_PATH")
+TOKEN_URL = "https://app.clio.com/oauth/token"
 
-    # Check if token is expired
+
+def refresh_token_if_needed(tokens: dict) -> dict:
     if "expires_at" in tokens and int(tokens["expires_at"]) <= int(time.time()):
-        print("🔁 Token expired, refreshing...")
-
-        payload = {
-            "grant_type": "refresh_token",
-            "client_id": os.getenv("CLIO_CLIENT_ID"),
-            "client_secret": os.getenv("CLIO_CLIENT_SECRET"),
-            "refresh_token": tokens["refresh_token"],
-        }
-
-        response = requests.post("https://app.clio.com/oauth/token", data=payload)
-        if response.status_code != 200:
-            raise Exception(f"❌ Failed to refresh token: {response.text}")
-
-        tokens = response.json()
-        tokens["expires_at"] = int(time.time()) + tokens.get("expires_in", 3600)
-
-        with open("firm_clio/clio_token_store.json", "w") as f:
-            json.dump(tokens, f)
-
-        print("✅ Token refreshed and saved.")
+        print("🔁 Token expired. Please re-authenticate via the OAuth flow.")
+        raise Exception("❌ Clio token expired. Re-authentication required.")
     else:
-        print("🔐 Using existing token.")
-        print(f"🔐 Using token: {tokens['access_token'][:10]}...")
+        print("🔐 Token is valid.")
+    return tokens
 
+
+def get_clio_client():
+    tokens = load_tokens()
+    access_token = tokens["access_token"]
+    if not access_token:
+        raise ValueError("❌ No access token found in token store.")
+    
     config = Configuration(
-        host="https://app.clio.com/api/v4",
-        access_token=tokens["access_token"]
+        host="https://app.clio.com/api/v4"
     )
-    return ApiClient(configuration=config)
+
+    # 🛠️ Set the token here — BUT this doesn't automatically inject headers
+    config.access_token = access_token
+
+    # 🧠 Here's what makes it work!
+    client = ApiClient(config)
+    client.default_headers["Authorization"] = f"Bearer {access_token}"  # ✅ Required fix
+
+    print(f"🧪 Token used: {access_token[:16]}...")
+    return client
+
+

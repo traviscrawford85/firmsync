@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "🐍 Flask: Run App",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder}/firm_clio/auth/app.py",
+        "env": {
+          "FLASK_APP": "app.py",
+          "FLASK_ENV": "development"
+        },
+        "args": [],
+        "jinja": true,
+        "console": "integratedTerminal"
+      }
+    ]
+  }
+  

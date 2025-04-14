@@ -1,13 +1,19 @@
 import os
-from firm_auth.oauth_flow import load_authenticated_client
+from firm_qbo.auth.oauth_flow import load_authenticated_client
 from quickbooks import QuickBooks
 from quickbooks.objects.customer import Customer
 
-def get_qbo_client():
+def get_qbo_client() -> QuickBooks:
+    """
+    Returns an authenticated QuickBooks client.
+    Automatically uses sandbox or production based on .env setting.
+    """
     auth_client = load_authenticated_client()
 
+    is_sandbox = os.getenv("QB_ENVIRONMENT", "sandbox").lower() == "sandbox"
+
     return QuickBooks(
-        sandbox=True,
+        sandbox=is_sandbox,
         auth_client=auth_client,
         refresh_token=auth_client.refresh_token,
         company_id=os.getenv("QB_REALM_ID")
