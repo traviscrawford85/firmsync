@@ -9,7 +9,7 @@ from typing import List
 
 load_dotenv()
 
-def load_tokens(path=None):
+def load_token_data(path=None):
     if path is None:
         path = os.getenv("CLIO_TOKEN_STORE_PATH") or os.getenv("QB_TOKEN_STORE_PATH")
         if not path:

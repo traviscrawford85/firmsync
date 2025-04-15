@@ -1,13 +1,12 @@
+# firm_qbo/auth/oauth_flow.py
+
 import os
-from dotenv import load_dotenv
+import json
 from intuitlib.client import AuthClient
 from intuitlib.exceptions import AuthClientError
-from utils.helpers import load_tokens, save_tokens
+from dotenv import load_dotenv
 
 load_dotenv()
-
-# Centralized token path
-TOKEN_PATH = "firm_qbo/token_store.json"
 
 def get_auth_client():
     return AuthClient(
@@ -18,10 +17,10 @@ def get_auth_client():
     )
 
 def load_authenticated_client():
-    try:
-        tokens = load_tokens(TOKEN_PATH)
-    except FileNotFoundError:
-        raise Exception("❌ token_store.json not found. Run OAuth login first.")
+    token_path = os.getenv("QB_TOKEN_STORE_PATH")
+
+    with open(token_path, "r") as f:
+        tokens = json.load(f)
 
     auth_client = get_auth_client()
     auth_client.access_token = tokens["access_token"]
@@ -29,9 +28,17 @@ def load_authenticated_client():
 
     try:
         auth_client.refresh()
-        save_tokens(auth_client.access_token, auth_client.refresh_token, TOKEN_PATH)
-        print("🔁 Token refresh successful.")
+        updated = {
+            "access_token": auth_client.access_token,
+            "refresh_token": auth_client.refresh_token,
+            "expires_at": getattr(auth_client, "expires_at", 0)
+        }
+
+        with open(token_path, "w") as f:
+            json.dump(updated, f, indent=2)
+
+        print("🔁 QBO token refreshed successfully.")
     except AuthClientError as e:
-        raise Exception(f"❌ Token refresh failed: {e}")
+        raise Exception(f"❌ QBO token refresh failed: {e}")
 
     return auth_client

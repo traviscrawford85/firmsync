@@ -1,4 +1,4 @@
-from firm_core.models.firm_expense import FirmExpense, FirmExpenseLineItem
+from firm_core.custom_models.firm_expense import FirmExpense, FirmExpenseLineItem
 from datetime import datetime, timezone, date
 
 expense = FirmExpense(

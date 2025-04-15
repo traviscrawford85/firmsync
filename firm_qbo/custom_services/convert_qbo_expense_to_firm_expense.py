@@ -4,7 +4,7 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 from firm_qbo.custom_models.qbo_expense_model import QBOExpense
-from firm_core.models import FirmExpense, FirmExpenseLineItem
+from firm_core.custom_models import FirmExpense, FirmExpenseLineItem
 
 
 def convert_qbo_expense_to_firm_expense(qbo_expense: QBOExpense) -> FirmExpense:

@@ -1,60 +1,44 @@
-from flask import Flask, request
-import requests
+# firm_clio/auth/oauth_flow.py
+
 import os
-import sys
-import json
-import time  # ✅ Required for token expiration
-from dotenv import load_dotenv
+import time
+import requests
+from utils.token_storage import load_token_data, save_token_data
 
-# 🔧 Ensure root is in path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from utils.helpers import save_tokens  # You only need save_tokens here
-
-load_dotenv()
-
-app = Flask(__name__)
-
-# 🔐 Clio Credentials
+TOKEN_URL = os.getenv("CLIO_TOKEN_URL", "https://app.clio.com/oauth/token")
+TOKEN_PATH = os.getenv("CLIO_TOKEN_STORE_PATH", "firm_clio/clio_token_store.json")
 CLIENT_ID = os.getenv("CLIO_CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIO_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("CLIO_REDIRECT_URI")
-TOKEN_PATH = os.getenv("CLIO_TOKEN_STORE_PATH", "firm_clio/clio_token_store.json")
 
-@app.route("/")
-def home():
-    auth_url = (
-        f"https://app.clio.com/oauth/authorize?"
-        f"client_id={CLIENT_ID}&"
-        f"redirect_uri={REDIRECT_URI}&"
-        f"response_type=code&"
-        f"scope=all"
-    )
-    return f'<a href="{auth_url}" target="_blank">Click here to authorize Clio</a>'
+def refresh_clio_token_if_needed(tokens: dict) -> dict:
+    if "expires_at" in tokens and int(tokens["expires_at"]) > int(time.time()):
+        print("🔐 Clio token is still valid.")
+        return tokens
 
-@app.route("/api/oauth/callback")  # ✅ Match this with CLIO_REDIRECT_URI in .env
-def callback():
-    code = request.args.get("code")
+    print("🔁 Clio token expired. Refreshing...")
 
     payload = {
-        "grant_type": "authorization_code",
+        "grant_type": "refresh_token",
+        "refresh_token": tokens["refresh_token"],
         "client_id": CLIENT_ID,
         "client_secret": CLIENT_SECRET,
-        "redirect_uri": REDIRECT_URI,
-        "code": code,
     }
 
-    token_response = requests.post("https://app.clio.com/oauth/token", data=payload)
-    if token_response.status_code != 200:
-        return f"❌ Error: {token_response.text}"
+    response = requests.post(TOKEN_URL, data=payload)
+    if response.status_code != 200:
+        raise Exception(f"❌ Clio token refresh failed: {response.text}")
 
-    tokens = token_response.json()
-    tokens["expires_at"] = int(time.time()) + tokens.get("expires_in", 3600)
+    refreshed = response.json()
+    refreshed["expires_at"] = int(time.time()) + refreshed.get("expires_in", 3600)
+    save_token_data(refreshed, "clio")
 
-    save_tokens(tokens["access_token"], tokens["refresh_token"], TOKEN_PATH)
-    return "✅ Clio Authorization complete. Tokens saved!"
+    print("✅ Clio token refreshed.")
+    return refreshed
 
-if __name__ == "__main__":
-    app.run(port=5000)
+def load_authenticated_clio_token() -> dict:
+    try:
+        tokens = load_token_data("clio")
+        return refresh_clio_token_if_needed(tokens)
+    except FileNotFoundError:
+        raise Exception("❌ Clio token file not found. Run OAuth flow first.")
