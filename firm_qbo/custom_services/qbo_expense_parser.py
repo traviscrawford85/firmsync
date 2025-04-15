@@ -1,7 +1,7 @@
 # firm_qbo/custom_services/qbo_expense_parser.py
 
 from firm_qbo.custom_models.qbo_expense_model import QBOExpense, QBOExpenseLine
-from utils.helpers import extract_clio_matter_id_from_qbo
+from utils.token_storage import extract_clio_matter_id_from_qbo
 from typing import Dict
 from datetime import datetime
 

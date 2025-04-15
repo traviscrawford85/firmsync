@@ -1,7 +1,7 @@
 from clio_sdk.models import ActivityBase
 from datetime import datetime
 from firm_clio.clio_client import get_clio_client  # assuming you have this setup
-from firmsync.utils.helpers import to_clio_currency_dict
+from utils.token_storage import to_clio_currency_dict
 from firm_clio.custom_models.firm_expense_model import FirmExpense
 
 def sync_firm_expense_to_clio(firm_expense: FirmExpense):
