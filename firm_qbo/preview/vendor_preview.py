@@ -1,29 +1,46 @@
-# scripts/vendor_preview.py
+# vendor_preview.py
 
 from firm_clio.clio_client import get_clio_client
 from clio_sdk.api.contacts_api import ContactsApi
-from firm_core.config.policy_config import IGNORE_CONTACTS_WITHOUT_MATTER
-from firm_qbo.mappers.vendor_mapper import get_or_create_vendor  # Will NOT create if policy is False
+from firm_clio.utils.pagination import ClioPaginator
 
-def preview_vendor_sync(limit: int = 10):
-    """
-    Preview Clio contacts for potential vendor mapping to QBO.
-    """
+
+def preview_vendor_sync(limit=None):
+    print("\n🔍 Previewing Clio contacts for vendor sync...\n")
+
     client = get_clio_client()
     api = ContactsApi(client)
 
-    try:
-        response = api.contact_index(limit=limit)
-        contacts = response.data  # List[Contact] — actual Pydantic models
+    paginator = ClioPaginator(api.contact_index_with_http_info, page_size=200)
 
-        print(f"\n🔍 Previewing {len(contacts)} Clio contacts for vendor sync:\n")
-        for contact in contacts:
-            name = contact.name or f"{contact.first_name or ''} {contact.last_name or ''}".strip()
-            matter_count = getattr(contact, "matters_count", 0)
-            print(f" • {name:<30} | Matters: {'Yes' if matter_count > 0 else 'No'}")
+    total_candidates = 0
+    total_previewed = 0
+    page_num = 0
 
-    except Exception as e:
-        print(f"❌ Failed to load contacts: {e}")
+    for page in paginator.pages():
+        page_num += 1
+        page_candidates = 0
 
-if __name__ == "__main__":
-    preview_vendor_sync()
+        for contact in page:
+            total_previewed += 1
+
+            if getattr(contact, "matters_count", 0) > 0:
+                continue
+
+            contact_id = contact.id
+            name = contact.name or "—"
+
+            print(f" • {name:<30} (ID: {contact_id})")
+            page_candidates += 1
+            total_candidates += 1
+
+            if limit and total_candidates >= limit:
+                break
+
+        print(f"\n🔚 Page {page_num} complete. Displayed {page_candidates} vendor candidates.\n")
+
+        if limit and total_candidates >= limit:
+            break
+
+    print(f"✅ Done. Previewed {total_previewed} contacts across {page_num} page(s).")
+    print(f"✅ Total vendor candidates: {total_candidates}")
