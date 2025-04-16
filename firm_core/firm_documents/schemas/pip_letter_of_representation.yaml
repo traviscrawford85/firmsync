@@ -1,0 +1,13 @@
+schema: pip_letter_of_representation
+required_fields:
+  - Date.Verbose
+  - Matter.Relationships.ClientsPipAdjuster.PrimaryFaxNumber
+  - Matter.CustomField.ClientAutoInsuranceName
+  - Matter.Relationships.ClientsPipAdjuster.Address
+  - Matter.Relationships.ClientsPipAdjuster.Name
+  - Matter.Client.Name
+  - Matter.CustomField.ClientAutoInsuranceClaimNo
+  - Matter.CustomField.DateOfIncident
+  - Matter.Relationships.ClientsPipAdjuster.Prefix
+  - Matter.Relationships.ClientsPipAdjuster.LastName
+  - Matter.CustomField.UserInitials
