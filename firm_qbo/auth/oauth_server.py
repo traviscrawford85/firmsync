@@ -6,6 +6,7 @@ from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
 from dotenv import load_dotenv
 import json
+import time
 
 load_dotenv()
 app = Flask(__name__)
@@ -32,7 +33,7 @@ def callback():
     token_data = {
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
-        "expires_at": auth_client.expires_at
+        "expires_at": int(time.time()) + auth_client.expires_in,
     }
 
     with open(os.getenv("QB_TOKEN_STORE_PATH"), "w") as f:
