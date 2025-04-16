@@ -1,0 +1,15 @@
+import yaml
+from pathlib import Path
+
+SCHEMA_DIR = Path(__file__).parent
+
+def load_yaml_schema(name: str) -> dict:
+    """
+    Load a schema YAML by name.
+    e.g. load_yaml_schema('pip_letter_of_representation')
+    """
+    schema_path = SCHEMA_DIR / name / f"{name}.yaml"
+    if not schema_path.exists():
+        raise FileNotFoundError(f"No schema found for {name}")
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
