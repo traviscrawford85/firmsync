@@ -1,20 +1,27 @@
 # firm_clio/auth/oauth_server.py
+
 from flask import Flask, request
 import requests, os, time
 from utils.token_storage import save_token_data
+import webbrowser
+from urllib.parse import urlencode
+from flask import redirect
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    auth_url = (
+def build_auth_url():
+    return (
         f"https://app.clio.com/oauth/authorize?"
         f"client_id={os.getenv('CLIO_CLIENT_ID')}&"
         f"redirect_uri={os.getenv('CLIO_REDIRECT_URI')}&"
         f"response_type=code&"
         f"scope=all"
     )
-    return f'<a href="{auth_url}" target="_blank">Authorize Clio</a>'
+
+@app.route("/")
+def home():
+    auth_url = build_auth_url()
+    return redirect(auth_url)
 
 @app.route("/api/oauth/callback")
 def callback():
@@ -41,4 +48,9 @@ def callback():
     return "✅ Clio Authorization Complete. Tokens Saved!"
 
 if __name__ == "__main__":
+    import sys
+    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+        # This block runs only on the initial Flask launch, not on reload
+        webbrowser.open("http://localhost:5000/")
+
     app.run(debug=True, port=5000)

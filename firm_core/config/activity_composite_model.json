@@ -1,0 +1,128 @@
+{
+  "model": "ActivityCompositeModel",
+  "description": "Composite model for activities, combining data from different sources.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "external_id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "source",
+      "type": "Optional[Literal['clio', 'qbo']]"
+    },
+    {
+      "name": "date",
+      "type": "Optional[datetime]"
+    },
+    {
+      "name": "description",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "amount",
+      "type": "Optional[float]"
+    },
+    {
+      "name": "quantity",
+      "type": "Optional[float]"
+    },
+    {
+      "name": "rate",
+      "type": "Optional[float]"
+    },
+    {
+      "name": "type",
+      "type": "Optional[Literal['time', 'expense', 'flat_fee', 'purchase']]"
+    },
+    {
+      "name": "matter_id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "contact_id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "contact_name",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "qbo_vendor_id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "qbo_account_id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "qbo_item_id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "qbo_customer_id",
+      "type": "Optional[str]"
+    },
+    {
+      "name": "qbo_synced_at",
+      "type": "Optional[datetime]"
+    },
+    {
+      "name": "status",
+      "type": "Optional[Literal['draft', 'synced', 'error']]"
+    }
+  ],
+  "related_models": [
+    {
+      "name": "ActivityDescriptionModel",
+      "key": "activity_description",
+      "fields": [
+        {
+          "name": "id",
+          "type": "Optional[str]"
+        },
+        {
+          "name": "name",
+          "type": "Optional[str]"
+        },
+        {
+          "name": "default_rate",
+          "type": "Optional[float]"
+        },
+        {
+          "name": "utbms_activity_id",
+          "type": "Optional[str]"
+        },
+        {
+          "name": "utbms_task_name",
+          "type": "Optional[str]"
+        },
+        {
+          "name": "utbms_task_id",
+          "type": "Optional[str]"
+        }
+      ]
+    },
+    {
+      "name": "ActivityRateModel",
+      "key": "rates",
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "str"
+        },
+        {
+          "name": "rate",
+          "type": "float"
+        },
+        {
+          "name": "activity_description_id",
+          "type": "str"
+        }
+      ]
+    }
+  ]
+}

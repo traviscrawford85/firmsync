@@ -1,0 +1,38 @@
+model: ActivityModel
+description: Model representing Clio or QBO activity records.
+fields:
+  - name: id
+    type: Optional[str]
+    description: Internal DB ID (if used)
+  - name: source
+    type: Literal["clio", "qbo"]
+    required: true
+    description: Source system
+  - name: external_id
+    type: str
+    required: true
+    description: ID from Clio or QBO
+  - name: date
+    type: datetime
+    required: true
+    description: Timestamp of activity
+  - name: description
+    type: Optional[str]
+  - name: amount
+    type: float
+    required: true
+    description: Total cost or charge
+  - name: quantity
+    type: Optional[float]
+    default: 1.0
+  - name: rate
+    type: Optional[float]
+  - name: matter_id
+    type: Optional[str]
+    description: Clio-only field
+  - name: contact_id
+    type: Optional[str]
+  - name: contact_name
+    type: Optional[str]
+  - name: type
+    type: Optional[Literal["time", "expense", "flat_fee", "purchase"]]

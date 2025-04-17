@@ -45,5 +45,5 @@ class ClioProvider(BaseProvider):
         return client
 
     def get_service_layer(self):
-        from firm_clio.custom_services.matters_service import MatterService
+        from custom_services.matter_service import MatterService
         return MatterService()

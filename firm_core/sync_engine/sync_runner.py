@@ -6,7 +6,7 @@ from firm_qbo.qbo_client import get_qbo_client
 from firm_core.sync_engine.sync_logger import log_sync_event
 
 # Business logic
-from firm_clio.custom_services.matters_service import MatterService
+from custom_services.matter_service import MatterService
 from firm_qbo.qbo_client import create_customer_if_missing
 
 

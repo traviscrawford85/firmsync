@@ -5,8 +5,10 @@ from flask import Flask, request
 from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
 from dotenv import load_dotenv
+from flask import redirect
 import json
 import time
+import webbrowser
 
 load_dotenv()
 app = Flask(__name__)
@@ -21,7 +23,7 @@ auth_client = AuthClient(
 @app.route("/")
 def home():
     auth_url = auth_client.get_authorization_url([Scopes.ACCOUNTING])
-    return f'<a href="{auth_url}" target="_blank">Click here to authorize QuickBooks</a>'
+    return redirect(auth_url)
 
 @app.route("/callback")
 def callback():
@@ -33,13 +35,20 @@ def callback():
     token_data = {
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
-        "expires_at": int(time.time()) + auth_client.expires_in,
+        "expires_at": int(time.time()) + (auth_client.expires_in or 0),
     }
 
-    with open(os.getenv("QB_TOKEN_STORE_PATH"), "w") as f:
+    token_store_path = os.getenv("QB_TOKEN_STORE_PATH")
+    if not token_store_path:
+        raise ValueError("Environment variable 'QB_TOKEN_STORE_PATH' is not set.")
+    with open(token_store_path, "w") as f:
         json.dump(token_data, f, indent=2)
 
     return "✅ Authorization complete! Tokens saved."
 
 if __name__ == "__main__":
+    # Avoid browser re-opening on Flask debug reload
+    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+        webbrowser.open("http://localhost:3000/")
+    
     app.run(port=3000, debug=True)

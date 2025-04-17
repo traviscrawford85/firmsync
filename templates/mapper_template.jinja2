@@ -1,0 +1,43 @@
+from firm_core.custom_models.activity import {{ model }}
+from clio_sdk.models.activity import Activity as ClioActivity
+from clio_sdk.models.activity_create_request import ActivityCreateRequest
+from clio_sdk.models.activity_update_request import ActivityUpdateRequest
+
+class {{ model }}Mapper:
+    @staticmethod
+    def from_clio(clio_obj: {{ sdk_model_class }}) -> {{ custom_model_class }}:
+        return {{ custom_model_class }}(
+            id=str(clio_obj.id) if clio_obj.id else None,
+            source="clio",
+            external_id=str(clio_obj.id),
+            date=clio_obj.date,
+            description=clio_obj.description,
+            amount=float(clio_obj.price or 0),
+            quantity=clio_obj.quantity,
+            rate=clio_obj.rate,
+            matter_id=str(clio_obj.matter_id) if clio_obj.matter_id else None,
+            contact_id=str(clio_obj.contact_id) if clio_obj.contact_id else None,
+            contact_name=getattr(clio_obj, "contact_name", None),
+            type=clio_obj.type
+        )
+
+
+    @staticmethod
+    def to_sdk_create(activity: {{ model }}) -> ActivityCreateRequest:
+        return ActivityCreateRequest(
+            activity={
+                {% for field in fields %}
+                "{{ field.name }}": activity.{{ field.name }},
+                {% endfor %}
+            }
+        )
+
+    @staticmethod
+    def to_sdk_update(activity: {{ model }}) -> ActivityUpdateRequest:
+        return ActivityUpdateRequest(
+            activity={
+                {% for field in fields %}
+                "{{ field.name }}": activity.{{ field.name }},
+                {% endfor %}
+            }
+        )

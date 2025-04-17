@@ -1,5 +1,31 @@
 {
-    "python.envFile": "${workspaceFolder}/.env",
-    "python.analysis.extraPaths": ["./"]
+  // Use .env in the root folder
+  "python.envFile": "${workspaceFolder}/.env",
+
+  // Allow import resolution across all top-level modules
+  "python.analysis.extraPaths": [
+    "./firm_clio",
+    "./firm_qbo",
+    "./firm_core",
+    "./utils"
+  ],
+
+  // Enable linting and type checking
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.mypyEnabled": true,
+  "python.analysis.typeCheckingMode": "basic",
+
+  // Code formatting
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "ms-python.python",
+
+  // Default terminal to root
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
   }
-  
+}

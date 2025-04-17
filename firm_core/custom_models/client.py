@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from clio_sdk.models import ContactModel
+from firm_core.custom_models.contact import ContactModel
+from typing import List, Any
 from typing import Optional
 from datetime import datetime, date
 from typing import Dict, Union

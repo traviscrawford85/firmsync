@@ -1,0 +1,22 @@
+from pydantic import BaseModel
+from typing import Optional, List, Literal
+from datetime import datetime
+
+{# -- First define related/nested models -- #}
+{% for related in related_models %}
+class {{ related.name }}(BaseModel):
+    {% for field in related.fields %}
+    {{ field.name }}: {{ field.type }}{% if "Optional" in field.type %} = None{% endif %}  # {{ field.description or "" }}
+    {% endfor %}
+
+{% endfor %}
+
+{# -- Then define the main model -- #}
+class {{ model_name }}(BaseModel):
+    {% for field in fields %}
+    {{ field.name }}: {{ field.type }}{% if "Optional" in field.type %} = None{% endif %}  # {{ field.description or "" }}
+    {% endfor %}
+
+    {% for related in related_models %}
+    {{ related.key }}: Optional[{{ related.name }}] = None
+    {% endfor %}

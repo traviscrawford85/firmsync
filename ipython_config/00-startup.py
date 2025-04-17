@@ -49,7 +49,7 @@ def load_qbo_tools():
 def load_clio_tools():
     try:
         from firm_clio.clio_client import get_clio_client, get_clio_service
-        from firm_clio.custom_services.matters_service import MatterService
+        from custom_services.matter_service import MatterService
         from firm_clio.custom_models.matter import MatterModel
 
         global clio_client, matter_service

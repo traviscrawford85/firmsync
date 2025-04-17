@@ -2,7 +2,7 @@
 
 from firm_clio.clio_client import get_clio_client
 from clio_sdk.api.contacts_api import ContactsApi
-from firm_clio.utils.pagination import ClioPaginator
+from utils.paginator import ClioPaginator
 
 
 def preview_vendor_sync(limit=None):

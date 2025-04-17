@@ -2,6 +2,20 @@
     "version": "0.2.0",
     "configurations": [
       {
+        "name": "QBO OAuth Server",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "firm_qbo.auth.oauth_server",
+        "justMyCode": true
+      },
+      {
+        "name": "Clio OAuth Server",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "firm_clio.auth.oauth_server",
+        "justMyCode": true
+      },
+      {
         "name": "🐍 Flask: Run App",
         "type": "debugpy",
         "request": "launch",
