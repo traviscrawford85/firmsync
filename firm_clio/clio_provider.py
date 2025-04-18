@@ -5,12 +5,14 @@ import requests
 from clio_sdk import Configuration, ApiClient
 from firm_core.providers.base_provider import BaseProvider
 
+
 class ClioProvider(BaseProvider):
     def __init__(self, client_id, client_secret, token_url, api_url):
         super().__init__("clio")
         self.client_id = client_id
         self.client_secret = client_secret
         self.token_url = token_url
+        self.token_store_path = "clio_tokens_store.json"
         self.api_url = api_url
 
     def refresh_tokens(self):
@@ -27,7 +29,8 @@ class ClioProvider(BaseProvider):
             raise Exception(f"❌ Failed to refresh Clio token: {response.text}")
 
         new_tokens = response.json()
-        new_tokens["expires_at"] = int(time.time()) + new_tokens.get("expires_in", 3600)
+        new_tokens["expires_at"] = int(
+            time.time()) + new_tokens.get("expires_in", 3600)
 
         self.save_tokens(new_tokens)
         self.token_data = new_tokens

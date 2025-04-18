@@ -1,33 +1,43 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "QBO OAuth Server",
-        "type": "debugpy",
-        "request": "launch",
-        "module": "firm_qbo.auth.oauth_server",
-        "justMyCode": true
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "QBO OAuth Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "firm_qbo.auth.oauth_server",
+      "justMyCode": true
+    },
+    {
+      "name": "Clio OAuth Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "firm_clio.auth.oauth_server",
+      "justMyCode": true
+    },
+    {
+      "name": "🐍 Flask: Run App",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/firm_clio/auth/app.py",
+      "env": {
+        "FLASK_APP": "app.py",
+        "FLASK_ENV": "development"
       },
-      {
-        "name": "Clio OAuth Server",
-        "type": "debugpy",
-        "request": "launch",
-        "module": "firm_clio.auth.oauth_server",
-        "justMyCode": true
-      },
-      {
-        "name": "🐍 Flask: Run App",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${workspaceFolder}/firm_clio/auth/app.py",
-        "env": {
-          "FLASK_APP": "app.py",
-          "FLASK_ENV": "development"
-        },
-        "args": [],
-        "jinja": true,
-        "console": "integratedTerminal"
+      "args": [],
+      "jinja": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "🪛 Debug load_composite_matter",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/debug_matter.py",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
       }
-    ]
-  }
-  
+    }
+  ]
+}

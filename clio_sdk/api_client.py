@@ -41,7 +41,17 @@ from clio_sdk.exceptions import (
     ServiceException
 )
 
-RequestSerialized = Tuple[str, str, Dict[str, str], Optional[str], List[str]]
+from typing import List, Tuple, Optional, Dict, Any
+
+RequestSerialized = Tuple[
+    str,                          # method
+    str,                          # url
+    List[Tuple[str, str]],        # headers
+    Optional[Any],                # body
+    Optional[List[Tuple[str, str]]],  # post_params
+    Dict[str, str],               # auth_settings
+]
+
 
 class ApiClient:
     """Generic API client for OpenAPI client library builds.
@@ -62,7 +72,7 @@ class ApiClient:
     PRIMITIVE_TYPES = (float, bool, bytes, str, int)
     NATIVE_TYPES_MAPPING = {
         'int': int,
-        'long': int, # TODO remove as only py3 is supported?
+        'long': int,  # TODO remove as only py3 is supported?
         'float': float,
         'str': str,
         'bool': bool,
@@ -112,7 +122,6 @@ class ApiClient:
     def set_default_header(self, header_name, header_value):
         self.default_headers[header_name] = header_value
 
-
     _default = None
 
     @classmethod
@@ -153,7 +162,6 @@ class ApiClient:
         _host=None,
         _request_auth=None
     ) -> RequestSerialized:
-
         """Builds the HTTP request params needed by the request.
         :param method: Method to call.
         :param resource_path: Path to method endpoint.
@@ -186,7 +194,7 @@ class ApiClient:
         if header_params:
             header_params = self.sanitize_for_serialization(header_params)
             header_params = dict(
-                self.parameters_to_tuples(header_params,collection_formats)
+                self.parameters_to_tuples(header_params, collection_formats)
             )
 
         # path parameters
@@ -247,7 +255,6 @@ class ApiClient:
 
         return method, url, header_params, body, post_params
 
-
     def call_api(
         self,
         method,
@@ -286,7 +293,7 @@ class ApiClient:
     def response_deserialize(
         self,
         response_data: rest.RESTResponse,
-        response_types_map: Optional[Dict[str, ApiResponseT]]=None
+        response_types_map: Optional[Dict[str, ApiResponseT]] = None
     ) -> ApiResponse[ApiResponseT]:
         """Deserializes response into an object.
         :param response_data: RESTResponse object to be deserialized.
@@ -300,7 +307,9 @@ class ApiClient:
         response_type = response_types_map.get(str(response_data.status), None)
         if not response_type and isinstance(response_data.status, int) and 100 <= response_data.status <= 599:
             # if not found, look for '1XX', '2XX', etc.
-            response_type = response_types_map.get(str(response_data.status)[0] + "XX", None)
+            response_types_map = response_types_map or {}
+            response_type = response_types_map.get(
+                str(response_data.status), None)
 
         # deserialize response data
         response_text = None
@@ -314,10 +323,19 @@ class ApiClient:
                 match = None
                 content_type = response_data.getheader('content-type')
                 if content_type is not None:
-                    match = re.search(r"charset=([a-zA-Z\-\d]+)[\s;]?", content_type)
+                    match = re.search(
+                        r"charset=([a-zA-Z\-\d]+)[\s;]?", content_type)
                 encoding = match.group(1) if match else "utf-8"
                 response_text = response_data.data.decode(encoding)
-                return_data = self.deserialize(response_text, response_type, content_type)
+                print("📬 Status Code:", response_data.status)
+                print("🧾 Content-Type:", content_type)
+                print("📄 Raw Response Text:")
+                # Just first 500 chars to avoid spam
+                print(response_text[:500])
+                print("🎯 Expected Response Type:", response_type)
+
+                return_data = self.deserialize(
+                    response_text, str(response_type), content_type)
         finally:
             if not 200 <= response_data.status <= 299:
                 raise ApiException.from_response(
@@ -326,12 +344,12 @@ class ApiClient:
                     data=return_data,
                 )
 
-        return ApiResponse(
-            status_code = response_data.status,
-            data = return_data,
-            headers = response_data.getheaders(),
-            raw_data = response_data.data
-        )
+                return ApiResponse(
+                    status_code=response_data.status,
+                    data=return_data,
+                    headers=response_data.getheaders(),
+                    raw_data=response_data.data
+                )
 
     def sanitize_for_serialization(self, obj):
         """Builds a JSON POST object.
